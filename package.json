@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "animate.css": "^4.1.1",
     "gitignore": "^0.7.0",
     "tailwindscss": "^0.3.0"
   },

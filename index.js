@@ -47,6 +47,7 @@ window.onload = () => {
         if (errorMessage) {
             alert(errorMessage);
             return;
+
         }
 
         // Select the table body
@@ -64,5 +65,9 @@ window.onload = () => {
         const deleteCell = newRow.cells[3];
         // Append the delete button to the cell
         deleteCell.appendChild(createDeleteButton());
+        // clears the form once the submit button has been selected
+        document.querySelector('.inputContainer1').value = '';
+        document.querySelector('.inputContainer2').value = '';
+        document.querySelector('.inputContainer3').value = '';
     });
 };
