@@ -1,3 +1,17 @@
+//TODO - Finish API setup
+const fetchData = async () => {
+    try {
+        const response = await fetch('API_EndPoint');
+        const data = await response.json();
+        data.forEach(item => {
+            addToTable(item);
+        });
+    } catch (error) {
+        console.error('Error fetching data: ', error);
+    }
+};
+
+
 // Function to create a delete button and attach an event listener
 const createDeleteButton = () => {
     // Create a button element
