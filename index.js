@@ -21,9 +21,15 @@ const createDeleteButton = () => {
     // Set the inner HTML of the button, including styling and text
     deleteBtn.innerHTML = `<button class="p-3 mt-2 w-full text-center bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200 shadow-md">DELETE</button>`;
     // Attach an onclick event listener to the button
-    deleteBtn.onclick = () => {
-        // When the button is clicked, find the closest 'tr' (table row) ancestor and remove it from the DOM
-        this.closest('tr').remove();
+    deleteBtn.onclick = function() {
+        // When the button is clicked, find the closest 'tr' (table row) ancestor
+        const tr = this.closest('tr');
+        // Add the animation classes from animate.css
+        tr.classList.add('animate__animated', 'animate__bounceOut');
+        // Remove the <tr> from the DOM after the animation ends
+        tr.addEventListener('animationend', () => {
+            tr.remove();
+        });
     };
     // Return the fully constructed button with the event listener
     return deleteBtn;
@@ -65,8 +71,14 @@ window.onload = () => {
     const table = document.querySelector('table');
     table.addEventListener('click', event => {
         if (event.target.tagName === 'BUTTON') {
-            // Find the closest 'tr' ancestor to the button and remove it
-            event.target.closest('tr').remove();
+            // Find the closest 'tr' ancestor to the button
+            const tr = event.target.closest('tr');
+            // Add the animation classes from animate.css
+            tr.classList.add('animate__animated', 'animate__bounceOut');
+            // Remove the <tr> from the DOM after the animation ends
+            tr.addEventListener('animationend', () => {
+                tr.remove();
+            });
         }
     });
 
@@ -81,9 +93,9 @@ window.onload = () => {
         // Initialize an error message string
         let errorMessage = '';
         // Add error messages if any of the fields are empty
-        errorMessage += newDate === '' ? 'Please choose a date.\n' : '';
-        errorMessage += newTitle === '' ? 'Please enter a title.\n' : '';
-        errorMessage += newTextData === '' ? 'Please enter text data.\n' : '';
+        errorMessage += newDate === '' ? 'Please choose a date\n' : '';
+        errorMessage += newTitle === '' ? 'Please enter a title\n' : '';
+        errorMessage += newTextData === '' ? 'Please add a note\n' : '';
 
         // If there are any error messages, alert them and exit the function
         if (errorMessage) {
