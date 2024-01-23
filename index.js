@@ -19,9 +19,9 @@ const createDeleteButton = () => {
     // Create a button element
     const deleteBtn = document.createElement('button');
     // Set the inner HTML of the button, including styling and text
-    deleteBtn.innerHTML = `<button class="p-3 mt-5 w-full text-center bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200 shadow-md">DELETE</button>`;
+    deleteBtn.innerHTML = `<button class="p-3 mt-2 w-full text-center bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200 shadow-md">DELETE</button>`;
     // Attach an onclick event listener to the button
-    deleteBtn.onclick = function() {
+    deleteBtn.onclick = () => {
         // When the button is clicked, find the closest 'tr' (table row) ancestor and remove it from the DOM
         this.closest('tr').remove();
     };
