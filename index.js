@@ -96,10 +96,10 @@ window.onload = () => {
         const newRow = tableBody.insertRow();
         // Set the inner HTML of the new row, creating cells for each piece of data
         newRow.innerHTML = `
-            <td class="p-3 text-white">${newDate}</td>
-            <td class="p-3 text-white">${newTitle}</td>
-            <td class="p-3 text-white">${newTextData}</td>
-            <td></td>
+            <td class="p-3 text-white text-center">${newDate}</td>
+            <td class="p-3 text-white text-center">${newTitle}</td>
+            <td class="p-3 text-white text-center">${newTextData}</td>
+            <td class="text-center"></td>
         `;
         // Select the cell where the delete button will be placed
         const deleteCell = newRow.cells[3];
