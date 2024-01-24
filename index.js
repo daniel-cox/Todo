@@ -1,133 +1,103 @@
-//TODO - Finish API setup
-const fetchData = async () => {
-    try {
-        // Fetch data from the API endpoint
-        const response = await fetch('API_EndPoint');
-        const data = await response.json();
-        // Add each item to the table
-        data.forEach(item => {
-            addToTable(item);
-        });
-    } catch (error) {
-        // Log errors to the console if the fetch fails
-        console.error('Error fetching data: ', error);
-    }
-};
+// Utility Functions:
+// These functions perform specific tasks and can be used throughout the code
 
-// Function to create a delete button and attach an event listener
-const createDeleteButton = () => {
-    // Create a button element
-    const deleteBtn = document.createElement('button');
-    // Set the inner HTML of the button, including styling and text
-    deleteBtn.innerHTML = `<button class="p-3 mt-2 w-full text-center bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200 shadow-md">DELETE</button>`;
-    // Attach an onclick event listener to the button
-    deleteBtn.onclick = function() {
-        // When the button is clicked, find the closest 'tr' (table row) ancestor
-        const tr = this.closest('tr');
-        // Add the animation classes from animate.css
-        tr.classList.add('animate__animated', 'animate__bounceOut');
-        // Remove the <tr> from the DOM after the animation ends
-        tr.addEventListener('animationend', () => {
-            tr.remove();
-        });
-    };
-    // Return the fully constructed button with the event listener
-    return deleteBtn;
-};
-
-// Function to compare two dates for sorting
-const compareDates = (date1, date2) => {
-    // Convert date strings to Date objects
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    // Returns a negative value if d1 is before d2, positive if after, or 0 if equal
-    return d1 - d2;
-};
-
-// Function to sort table rows by date and reinsert them
-const sortTableByDate = () => {
-    // Select the table body and get all rows
-    const tableBody = document.querySelector('table tbody');
-    const rows = Array.from(tableBody.rows);
-    // Sort rows based on the date in the first cell
-    rows.sort((rowA, rowB) => compareDates(rowA.cells[0].textContent, rowB.cells[0].textContent));
-    // Reinsert rows in the sorted order
-    rows.forEach(row => tableBody.appendChild(row));
-};
-
-// Function to get the current date in YYYY-MM-DD format
+// Returns the current date in YYYY-MM-DD format
 const getCurrentFormattedDate = () => {
     const now = new Date();
     const year = now.getFullYear();
-    // Add leading zero if month or day is less than 10
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const day = now.getDate().toString().padStart(2, '0');
-    // Return the formatted date string
     return `${year}-${month}-${day}`;
 };
 
+// Compares two dates and returns a numeric value representing their order
+const compareDates = (date1, date2) => {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    return d1 - d2;  // A negative value means date1 is before date2, positive means after, 0 means equal
+};
+
+// DOM Manipulation Functions:
+// These functions interact directly with the DOM, creating, modifying, or deleting elements
+
+// Creates and returns a delete button with an attached event listener for removal animation
+const createDeleteButton = () => {
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerHTML = `<button class="p-3 mt-2 w-full text-center bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200 shadow-md">DELETE</button>`;
+    deleteBtn.onclick = function() {
+        const tr = this.closest('tr'); // Finds the nearest ancestor <tr> element
+        tr.classList.add('animate__animated', 'animate__bounceOut'); // Adds animation classes
+        tr.addEventListener('animationend', () => { // Listens for the end of the animation
+            tr.remove(); // Removes the <tr> from the DOM after the animation
+        });
+    };
+    return deleteBtn;
+};
+
+// Sorts the rows of the table based on the date and reinserts them into the DOM in sorted order
+const sortTableByDate = () => {
+    const tableBody = document.querySelector('table tbody');
+    const rows = Array.from(tableBody.rows); // Converts HTMLCollection of rows to an array for sorting
+    rows.sort((rowA, rowB) => compareDates(rowA.cells[0].textContent, rowB.cells[0].textContent)); // Uses compareDates to sort rows
+    rows.forEach(row => tableBody.appendChild(row)); // Appends the sorted rows back to the table body
+};
+
+// Event Handlers:
+// These functions are bound to specific events and are triggered when those events occur
+
+// Sets up the initial state of the application and attaches event handlers when the window loads
 window.onload = () => {
-    // Set up event delegation for delete buttons in the table
     const table = document.querySelector('table');
+    // Event delegation for DELETE buttons. Listens for clicks on the table and checks if a button was clicked
     table.addEventListener('click', event => {
         if (event.target.tagName === 'BUTTON') {
-            // Find the closest 'tr' ancestor to the button
             const tr = event.target.closest('tr');
-            // Add the animation classes from animate.css
             tr.classList.add('animate__animated', 'animate__bounceOut');
-            // Remove the <tr> from the DOM after the animation ends
             tr.addEventListener('animationend', () => {
-                tr.remove();
+                tr.remove(); // Removes the <tr> from the DOM after the animation
             });
         }
     });
 
-    // Select the submit button and add a click event listener
     const submitBtn = document.getElementById('submit');
+    // Adds a click event listener to the 'submit' button
     submitBtn.addEventListener('click', () => {
-        // Get the values of input fields and trim any whitespace
+        // Retrieves and trims user input from form fields
         const newDate = document.querySelector('.inputContainer1').value.trim();
         const newTitle = document.querySelector('.inputContainer2').value.trim();
         const newTextData = document.querySelector('.inputContainer3').value.trim();
-        
-        // Initialize an error message string
-        let errorMessage = '';
-        // Add error messages if any of the fields are empty
-        errorMessage += newDate === '' ? 'Please choose a date\n' : '';
-        errorMessage += newTitle === '' ? 'Please enter a title\n' : '';
-        errorMessage += newTextData === '' ? 'Please add a note\n' : '';
 
-        // If there are any error messages, alert them and exit the function
+        // Error handling for empty input fields
+        let errorMessage = '';
+        errorMessage += newDate === '' ? 'Please choose a date.\n' : '';
+        errorMessage += newTitle === '' ? 'You must add a title to save.\n' : '';
+        errorMessage += newTextData === '' ? 'You must add something in the notes field to save.\n' : '';
+
         if (errorMessage) {
-            alert(errorMessage);
+            alert(errorMessage); // Alerts the user to the error(s)
             return;
         }
 
-        // Insert a new row into the table body
         const tableBody = document.querySelector('table tbody');
-        const newRow = tableBody.insertRow();
-        // Set the inner HTML of the new row, creating cells for each piece of data
+        const newRow = tableBody.insertRow(); // Inserts a new row in the table
+        // Sets the inner HTML of the new row, creating cells for date, title, notes, and the delete button
         newRow.innerHTML = `
             <td class="p-3 text-white text-center">${newDate}</td>
             <td class="p-3 text-white text-center">${newTitle}</td>
             <td class="p-3 text-white text-center">${newTextData}</td>
             <td class="text-center"></td>
         `;
-        // Select the cell where the delete button will be placed
         const deleteCell = newRow.cells[3];
-        // Append the delete button to the cell
-        deleteCell.appendChild(createDeleteButton());
+        deleteCell.appendChild(createDeleteButton()); // Adds the delete button to the new row
         
-        // Reset input fields after submitting
-        // Set the date input to the current date
+        // Resets the input fields after a successful submission
         document.querySelector('.inputContainer1').value = getCurrentFormattedDate();
         document.querySelector('.inputContainer2').value = '';
         document.querySelector('.inputContainer3').value = '';
 
-        // Sort the table after adding the new row
-        sortTableByDate();
+        sortTableByDate(); // Sorts the table after adding the new row
     });
 
-    // Set the current date in the date input field when the page loads
+    // Sets the current date in the date input field when the page loads
     document.querySelector('.inputContainer1').value = getCurrentFormattedDate();
 };
