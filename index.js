@@ -14,7 +14,7 @@ const getCurrentFormattedDate = () => {
 const compareDates = (date1, date2) => {
     const d1 = new Date(date1);
     const d2 = new Date(date2);
-    return d1 - d2;  // A negative value means date1 is before date2, positive means after, 0 means equal
+    return d1 - d2; 
 };
 
 // DOM Manipulation Functions:
@@ -87,6 +87,15 @@ window.onload = () => {
             <td class="p-3 text-white text-center">${newTextData}</td>
             <td class="text-center"></td>
         `;
+        newRow.classList.add('animate__animated', 'animate__zoomIn') //Adds an animation to the new row
+        
+        // Adds the classes immediately, then waits 1 second before checking if the class exists and removing it
+setTimeout(() => {
+            if (newRow.classList.contains('animate__animated')) {
+                newRow.classList.remove('animate__animated', 'animate__zoomIn');
+            }
+        }, 1000);
+
         const deleteCell = newRow.cells[3];
         deleteCell.appendChild(createDeleteButton()); // Adds the delete button to the new row
         
