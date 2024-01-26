@@ -1,9 +1,14 @@
-/* Include Tailwind's directives at the top of your CSS file */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Your custom CSS comes after Tailwind's directives */
 body {
     width: 1440px;
 }
+
+.bree-serif-regular {
+    font-family: "Bree Serif", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
