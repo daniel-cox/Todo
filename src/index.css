@@ -12,3 +12,8 @@ body {
     font-style: normal;
   }
   
+
+  td.buttonContain {
+    display: flex!important;
+    justify-content: center!important;
+}

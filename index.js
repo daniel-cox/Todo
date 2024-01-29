@@ -20,18 +20,47 @@ const compareDates = (date1, date2) => {
 // DOM Manipulation Functions:
 // These functions interact directly with the DOM, creating, modifying, or deleting elements
 
+const createCompleteButton = function() {
+    const completeBtn = document.createElement('button');
+    completeBtn.innerHTML = `<span>Complete</span> <i class="fa-solid fa-check hidden"></i>`; // Wrap the text in a span for better control
+    completeBtn.classList.add('p-3', 'mt-2', 'w-90', 'text-center', 'bg-green-500', 'text-white', 'rounded-full', 'hover:bg-green-700', 'transition', 'duration-100', 'flex', 'justify-center', 'items-center');
+
+    completeBtn.onclick = function() {
+        // Finds the nearest <tr> element
+        const tr = this.closest('tr');
+        tr.classList.add('animate__animated');
+
+        // Hide the text and show only the check icon, and add animation
+        this.querySelector('span').classList.add('hidden');
+        this.querySelector('i').classList.remove('hidden');
+        // this.classList.add('fa-spinner', 'fa-spin'); // Specify your desired button animation
+
+        // Optional: Disable the button after it's clicked to prevent multiple clicks
+        this.disabled = true;
+    };
+
+    return completeBtn;
+};
+
+
 // Creates and returns a delete button with an attached event listener for removal animation
 const createDeleteButton = () => {
     const deleteBtn = document.createElement('button');
-    deleteBtn.innerHTML = `<button class="p-3 mt-2 w-full text-center bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200 shadow-md">DELETE</button>`;
-    deleteBtn.onclick = function() {
-        const tr = this.closest('tr'); // Finds the nearest ancestor <tr> element
-        tr.classList.add('animate__animated', 'animate__bounceOut'); // Adds animation classes
-        tr.addEventListener('animationend', () => { // Listens for the end of the animation
-            tr.remove(); // Removes the <tr> from the DOM after the animation
-        });
+    deleteBtn.innerHTML = `DELETE <i class="fas fa-trash"></i>`;
+    deleteBtn.classList.add('delete-btn', 'p-3', 'mt-2', 'ml-3', 'w-3/12', 'text-center', 'bg-red-500', 'text-white', 'rounded-full', 'hover:bg-red-600', 'transition', 'duration-200', 'shadow-md');
+
+  // Using an arrow function here for modern syntax. Note that 'this' doesn't work the same way in arrow functions.
+    deleteBtn.onclick = () => {
+        const tr = deleteBtn.closest('tr');
+        // Using setTimeout as a fallback for the animationend event.
+        setTimeout(() => {
+            console.log('Animation duration completed');
+            tr.classList.add('fa-animate__animated', 'fa-animate__bounceOut');
+            tr.remove(); // Remove the element after the expected duration of the animation
+        }, 100);
     };
-    return deleteBtn;
+
+return deleteBtn;
 };
 
 // Sorts the rows of the table based on the date and reinserts them into the DOM in sorted order
@@ -52,10 +81,16 @@ window.onload = () => {
     table.addEventListener('click', event => {
         if (event.target.tagName === 'BUTTON') {
             const tr = event.target.closest('tr');
-            tr.classList.add('animate__animated', 'animate__bounceOut');
-            tr.addEventListener('animationend', () => {
-                tr.remove(); // Removes the <tr> from the DOM after the animation
-            });
+            if (event.target.classList.contains('delete-btn')) {
+                // Handle delete functionality
+                tr.classList.add('animate__animated', 'animate__bounceOut');
+                tr.addEventListener('animationend', () => {
+                    tr.remove(); // Removes the <tr> from the DOM after the animation
+                });
+            } else if (event.target.classList.contains('complete-btn')) {
+                // Handle complete functionality
+                tr.classList.add('complete'); // For example, mark the row as complete
+            }
         }
     });
 
@@ -85,7 +120,7 @@ window.onload = () => {
             <td class="p-3 text-white text-center">${newDate}</td>
             <td class="p-3 text-white text-center">${newTitle}</td>
             <td class="p-3 text-white text-center">${newTextData}</td>
-            <td class="text-center"></td>
+            <td class=" buttonContain text-center"></td>
         `;
         newRow.classList.add('animate__animated', 'animate__zoomIn') //Adds an animation to the new row
         
@@ -95,6 +130,11 @@ setTimeout(() => {
                 newRow.classList.remove('animate__animated', 'animate__zoomIn');
             }
         }, 1000);
+
+    const completeCell = newRow.cells[3]; // Assuming you want the complete button in the 5th column
+    completeCell.appendChild(createCompleteButton()); // Adds the complete button to the new row
+
+
 
         const deleteCell = newRow.cells[3];
         deleteCell.appendChild(createDeleteButton()); // Adds the delete button to the new row
