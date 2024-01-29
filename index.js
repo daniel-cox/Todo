@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.addEventListener('animationend', removeRow, { once: true });
         
             // Fallback: Remove the row after a set time if the animation doesn't end
-            setTimeout(removeRow, 100); // Adjust the time based on the duration of your animation
+            setTimeout(removeRow, 1000); // Adjust the time based on the duration of your animation
         }
     });
 

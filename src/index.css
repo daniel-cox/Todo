@@ -2,9 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    width: 1440px;
+* { 
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
+
+body { min-height: 100vh; }
 
 .bree-serif-regular {
     font-family: "Bree Serif", serif;
@@ -18,41 +22,6 @@ body {
     justify-content: center!important;
 }
 
-@-webkit-keyframes bounceOut {
-  0% {
-     -webkit-transform: scale(1);
-  }
-  25% {
-     -webkit-transform: scale(.95);
-  }
-  50% {
-     opacity: 1;
-     -webkit-transform: scale(1.1);
-  }
-  100% {
-     opacity: 0;
-     -webkit-transform: scale(.3);
-  }
-}
-
-@keyframes bounceOut {
-  0% {
-     transform: scale(1);
-  }
-  25% {
-     transform: scale(.95);
-  }
-  50% {
-     opacity: 1;
-     transform: scale(1.1);
-  }
-  100% {
-     opacity: 0;
-     transform: scale(.3);
-  }
-}
-
-.bounceOut {
-  -webkit-animation-name: bounceOut;
-  animation-name: bounceOut;
+.animate__animated.animate__bounceOut {
+  --animate-duration: 2s;
 }
