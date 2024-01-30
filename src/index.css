@@ -20,6 +20,7 @@ body { min-height: 100vh; }
   td.buttonContain {
     display: flex!important;
     justify-content: center!important;
+    max-width: 90%;
 }
 
 .animate__animated.animate__bounceOut {
