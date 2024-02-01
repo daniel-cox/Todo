@@ -20,13 +20,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const createCompleteButton = function() {
         const completeBtn = document.createElement('button');
         completeBtn.innerHTML = `<span>Complete</span> <i class="fa-solid fa-check hidden"></i>`;
-        completeBtn.classList.add('p-3', 'mt-2', 'w-full', 'text-center', 'bg-green-500', 'text-white', 'rounded-full', 'hover:bg-green-700', 'transition', 'duration-100', 'flex', 'justify-center', 'items-center');
+        completeBtn.classList.add('p-3', 'mt-2', 'w-full', 'text-center', 'bg-slate-500', 'text-white', 'rounded-full', 'hover:bg-slate-700', 'transition', 'duration-100', 'flex', 'justify-center', 'items-center');
+    
         completeBtn.onclick = function() {
             const tr = this.closest('tr');
-            tr.classList.add('animate__animated');
-            this.querySelector('span').classList.add('hidden');
-            this.querySelector('i').classList.remove('hidden');
-            this.disabled = true;
+            const span = this.querySelector('span');
+            const icon = this.querySelector('i.fa-check');
+    
+            // Toggle class based on current state
+            if (icon.classList.contains('hidden')) {
+                // Mark as complete
+                tr.classList.add('animate__animated');
+                span.classList.add('hidden');
+                icon.classList.remove('hidden');
+                this.classList.replace('bg-slate-500', 'bg-green-500'); // Change button color to gray
+                this.classList.add('hover:bg-green-700'); // Change hover color to darker gray
+            } else {
+                // Unmark as complete
+                tr.classList.remove('animate__animated');
+                span.classList.remove('hidden');
+                icon.classList.add('hidden');
+                this.classList.replace('bg-green-500', 'bg-slate-500'); // Change button color back to green
+                this.classList.remove('hover:bg-green-700'); // Revert hover color to original
+            }
         };
         return completeBtn;
     };
@@ -37,6 +53,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         deleteBtn.classList.add('delete-btn', 'p-3', 'mt-2', 'ml-3', 'w-full', 'text-center', 'bg-red-500', 'text-white', 'rounded-full', 'hover:bg-red-600', 'transition', 'duration-200', 'shadow-md');
         deleteBtn.addEventListener('click', () => deleteData(id));
         return deleteBtn;
+    };
+
+    const makeCellEditable = (cell) => {
+        cell.addEventListener('dblclick', function() {
+            const inputType = cell.cellIndex === 0 ? 'date' : 'text'; // Assuming Date is the first column
+            const oldValue = cell.innerText;
+            const input = document.createElement(inputType === 'date' ? 'input' : 'textarea');
+            input.type = inputType;
+            input.value = oldValue;
+            input.className = cell.className; // Copy class for styling
+            input.style = 'width: 50%; background-color: #1a232b; color: #fff;'; // Set background color and text color    
+    
+            // Replace cell content with the input
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+    
+            const finishEdit = () => {
+                const newValue = input.value.trim();
+                if (newValue && newValue !== oldValue) {
+                    updateData(cell, newValue); // Update the cell and backend data
+                } else {
+                    cell.innerHTML = oldValue; // Revert to old value if no change
+                }
+            };
+    
+            input.addEventListener('blur', finishEdit);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && inputType !== 'date') { // Prevent Enter in date inputs
+                    finishEdit();
+                }
+            });
+        });
     };
 
     const sortTableByDate = () => {
@@ -51,19 +100,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     table.addEventListener('click', event => {
         const btn = event.target.closest('button');
         if (!btn) {
-            // console.log('Click was not on a button.');
             return;
         }
 
         const tr = btn.closest('tr');
         if (!tr) {
-            // console.log('No <tr> found for this button');
             return;
         }
 
         if (btn.classList.contains('delete-btn')) {
             // Delete functionality is handled in createDeleteButton now
-            // console.log('Delete button clicked, delete functionality is handled separately.');
         }
     });
 
@@ -112,7 +158,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (newRow.classList.contains('animate__animated')) {
                 newRow.classList.remove('animate__animated', 'animate__zoomIn');
             }
-        }, 1000);
+        }, 100);
+
+        const cells = newRow.querySelectorAll('td');
+        cells.forEach((cell, index) => {
+            if (index < 3) { // Assuming first 3 columns should be editable
+                makeCellEditable(cell);
+            }
+        });
 
         const completeCell = newRow.cells[3];
         completeCell.appendChild(createCompleteButton());
@@ -142,7 +195,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             } else {
                 const responseData = await response.json();
-                // console.log('Data created successfully:', responseData);
                 return responseData; // Return the created data, including the ID
             }
         } catch (error) {
@@ -158,38 +210,66 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             } else {
                 const responseData = await response.json();
-                // console.log('Data retrieved successfully:', responseData);
                 return responseData; // Return the retrieved data
             }
         } catch (error) {
-            // console.error('Error reading data:', error);
+            console.error('Error reading data:', error);
         }
     }
+
+    // Function to Update Data
+    const updateData = async (cell, newValue) => {
+        const row = cell.parentNode;
+        const id = row.getAttribute('data-id');
+        const columnNames = ['Date', 'Title', 'Notes']; // Column names
+        const fieldToUpdate = columnNames[cell.cellIndex];
+
+        const dataToUpdate = { [fieldToUpdate]: newValue };
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataToUpdate),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            } else {
+                cell.innerHTML = newValue; // Update cell in the DOM
+                console.log(`Data updated successfully for ID: ${id}`);
+            }
+        } catch (error) {
+            console.error('Error updating data:', error);
+            cell.innerHTML = cell.getAttribute('data-old-value'); // Revert to old value on error
+        }
+    };
 
     // Function to Delete Data
-async function deleteData(id) {
-    const deleteUrl = `${apiBaseUrl}/${id}`;
-    console.log('Attempting to delete data at URL:', deleteUrl); // Log the URL for debugging
+    async function deleteData(id) {
+        const deleteUrl = `${apiBaseUrl}/${id}`;
+        console.log('Attempting to delete data at URL:', deleteUrl); // Log the URL for debugging
 
-    try {
-        const response = await fetch(deleteUrl, {
-            method: 'DELETE',
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        } else {
-            console.log('Data deleted successfully:', id);
-            // Remove the corresponding row from the table
-            const tableRowToDelete = document.querySelector(`tr[data-id='${id}']`);
-            if (tableRowToDelete) {
-                tableRowToDelete.remove();
+        try {
+            const response = await fetch(deleteUrl, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            } else {
+                console.log('Data deleted successfully:', id);
+                // Remove the corresponding row from the table
+                const tableRowToDelete = document.querySelector(`tr[data-id='${id}']`);
+                if (tableRowToDelete) {
+                    tableRowToDelete.remove();
+                }
             }
+        } catch (error) {
+            console.error('Error deleting data:', error);
         }
-    } catch (error) {
-        console.error('Error deleting data:', error);
     }
-}
 
+    // Display existing data on page load
     await displayExistingData();
 
     document.querySelector('.inputContainer1').value = getCurrentFormattedDate();
