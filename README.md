@@ -1,1 +1,1 @@
-A simple to do app to help users manage daily tasks
+This is a ToDo app that uses a CRUD API. The API was built using Mock API. The website is built using vanilla js, and tailwindsCSS.
